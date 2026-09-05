@@ -127,6 +127,10 @@ export default function BackupSection({ onDataRestored }: BackupSectionProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [exportedAt, setExportedAt] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
   const handleExport = () => {
     exportMutation.mutate(undefined, {
@@ -213,40 +217,50 @@ export default function BackupSection({ onDataRestored }: BackupSectionProps) {
   const handleConfirmImport = () => {
     if (!pendingBlob) return;
     setConfirmOpen(false);
-    importMutation.mutate(pendingBlob, {
-      onSuccess: (result) => {
-        setImportResult(result);
-        setPendingFile(null);
-        setPendingBlob(null);
-        setPreviewCounts(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-        if (onDataRestored) {
-          onDataRestored();
-        }
-        if (result.success) {
-          toast.success("Atsarginė kopija atkūrta!", {
-            description: `${result.totalRestored.toString()} įrašai atkurti.`,
-          });
-        } else {
+    setImportProgress(null);
+    importMutation.mutate(
+      {
+        blob: pendingBlob,
+        onProgress: (done, total) => setImportProgress({ done, total }),
+      },
+      {
+        onSuccess: (result) => {
+          setImportProgress(null);
+          setImportResult(result);
+          setPendingFile(null);
+          setPendingBlob(null);
+          setPreviewCounts(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+          if (onDataRestored) {
+            onDataRestored();
+          }
+          if (result.success) {
+            toast.success("Atsarginė kopija atkūrta!", {
+              description: `${result.totalRestored.toString()} įrašai atkurti.`,
+            });
+          } else {
+            toast.error("Importas nepavyko", {
+              description: "Duomenys nebuvo atkurti.",
+            });
+          }
+        },
+        onError: (error: Error) => {
+          setImportProgress(null);
+          setPendingFile(null);
+          setPendingBlob(null);
+          setPreviewCounts(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
           toast.error("Importas nepavyko", {
-            description: "Duomenys nebuvo atkurti.",
+            description:
+              error.message || "Failas netinkamas arba nesuderinamas.",
           });
-        }
+        },
       },
-      onError: (error: Error) => {
-        setPendingFile(null);
-        setPendingBlob(null);
-        setPreviewCounts(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-        toast.error("Importas nepavyko", {
-          description: error.message || "Failas netinkamas arba nesuderinamas.",
-        });
-      },
-    });
+    );
   };
 
   const handleCancelImport = () => {
@@ -346,7 +360,9 @@ export default function BackupSection({ onDataRestored }: BackupSectionProps) {
                 <FileUp className="h-4 w-4" />
               )}
               {importMutation.isPending
-                ? "Importuojama..."
+                ? importProgress && importProgress.total > 1
+                  ? `Importuojama... ${importProgress.done}/${importProgress.total}`
+                  : "Importuojama..."
                 : "Importuoti atsarginę kopiją"}
             </Button>
             <p className="text-xs text-muted-foreground">
