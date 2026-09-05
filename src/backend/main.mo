@@ -2728,7 +2728,11 @@ actor {
   };
 
   // Restore data from a JSON backup blob, idempotently and only for caller-owned data.
-  public shared ({ caller }) func importAllData(blob : Text) : async ImportResult {
+  // Shared by importAllData (a user restores their own data) and
+  // importAllDataAs (a canister controller restores on behalf of an owner —
+  // needed when a backup is moved between deployments, because Internet
+  // Identity derives a different principal per app origin).
+  func importAllDataFor(caller : Principal, blob : Text) : ImportResult {
     if (caller.isAnonymous()) {
       Runtime.trap("Neautorizuota: reikalinga prisijungti");
     };
@@ -3072,6 +3076,47 @@ actor {
       totalRestored;
       totalSkipped;
       counts = publicCounts;
+    };
+  };
+
+  public shared ({ caller }) func importAllData(blob : Text) : async ImportResult {
+    importAllDataFor(caller, blob);
+  };
+
+  // Controller-only: restore a backup so that `owner` (not the caller) owns
+  // the restored children and entries. The backup's principal fields must
+  // already name `owner`.
+  public shared ({ caller }) func importAllDataAs(owner : Principal, blob : Text) : async ImportResult {
+    if (not caller.isController()) {
+      Runtime.trap("Neautorizuota: tik kanisterio valdytojas");
+    };
+    importAllDataFor(owner, blob);
+  };
+
+  // Permanently removes a child profile together with every entry that
+  // references it (logs, sessions, notes, measurements, timers, invite
+  // links). Allowed for the child's parent, or a canister controller.
+  public shared ({ caller }) func deleteChild(childId : Text) : async () {
+    switch (persistentChildProfiles.get(childId)) {
+      case (null) { Runtime.trap("Vaikas nerastas") };
+      case (?child) {
+        if (child.parent != caller and not caller.isController()) {
+          Runtime.trap("Neautorizuota: tik tėvai gali ištrinti vaiką");
+        };
+        persistentChildProfiles.remove(childId);
+        persistentDiaperLogs := persistentDiaperLogs.filter(func((_, e)) { e.childId != childId });
+        persistentBreastfeedingSessions := persistentBreastfeedingSessions.filter(func((_, e)) { e.childId != childId });
+        persistentTummyTimeSessions := persistentTummyTimeSessions.filter(func((_, e)) { e.childId != childId });
+        persistentJournalNotes := persistentJournalNotes.filter(func((_, e)) { e.childId != childId });
+        persistentWeightEntries := persistentWeightEntries.filter(func((_, e)) { e.childId != childId });
+        persistentHeightEntries := persistentHeightEntries.filter(func((_, e)) { e.childId != childId });
+        persistentMilkPumpingSessions := persistentMilkPumpingSessions.filter(func((_, e)) { e.childId != childId });
+        persistentSolidFoodEntries := persistentSolidFoodEntries.filter(func((_, e)) { e.childId != childId });
+        persistentFeedingSessions := persistentFeedingSessions.filter(func((_, e)) { e.childId != childId });
+        persistentActiveTimers := persistentActiveTimers.filter(func((_, e)) { e.childId != childId });
+        persistentTummyTimeTimers := persistentTummyTimeTimers.filter(func((_, e)) { e.childId != childId });
+        persistentChildInviteLinks := persistentChildInviteLinks.filter(func((_, e)) { e.childId != childId });
+      };
     };
   };
 };

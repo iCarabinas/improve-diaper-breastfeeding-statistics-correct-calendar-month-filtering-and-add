@@ -3,6 +3,11 @@ import type { Principal } from "@icp-sdk/core/principal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ExternalBlob, createActor } from "../backend";
 import type { ImportResult } from "../backend";
+import {
+  type ImportChunk,
+  buildImportChunks,
+  mergeImportResults,
+} from "../lib/backupChunks";
 import type {
   SolidFoodCategory,
   SolidFoodEntry,
@@ -1281,14 +1286,32 @@ export function useExportAllData() {
   });
 }
 
+export interface ImportAllDataInput {
+  blob: string;
+  onProgress?: (done: number, total: number) => void;
+}
+
 export function useImportAllData() {
   const { actor } = useTypedActor();
   const queryClient = useQueryClient();
 
-  return useMutation<ImportResult, Error, string>({
-    mutationFn: async (blob: string) => {
+  // Restores the backup as a sequence of small `importAllData` calls (see
+  // lib/backupChunks.ts): one big call exceeds the IC per-message instruction
+  // limit (IC0522) for a journal with a few thousand entries.
+  return useMutation<ImportResult, Error, ImportAllDataInput>({
+    mutationFn: async ({ blob, onProgress }: ImportAllDataInput) => {
       if (!actor) throw new Error("Aktorius nepasiekiamas");
-      return actor.importAllData(blob);
+      const parsed = JSON.parse(blob) as Record<string, unknown>;
+      const chunks = buildImportChunks(parsed);
+      const results: { chunk: ImportChunk; result: ImportResult }[] = [];
+      onProgress?.(0, chunks.length);
+      for (const chunk of chunks) {
+        const result = await actor.importAllData(chunk.json);
+        results.push({ chunk, result });
+        onProgress?.(results.length, chunks.length);
+        if (!result.success) break;
+      }
+      return mergeImportResults(results);
     },
     onSuccess: () => {
       // Invalidate all data queries so the UI reflects restored data
