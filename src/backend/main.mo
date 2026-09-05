@@ -2749,281 +2749,303 @@ actor {
       Runtime.trap("Nesuderinamas atsarginės kopijos formatas");
     };
 
-    // 3. Decode every section up front — nothing is written until the whole
-    //    file validates, so a malformed backup changes nothing.
-    let children = switch (decodeArray(parsed, "children", decodeChildProfile)) {
-      case (?v) { v };
+    // 3. Process each section incrementally: decode a section, restore its
+    //    records, then release it before decoding the next. This keeps the
+    //    peak heap footprint to the parsed JSON tree plus one decoded section
+    //    at a time, instead of holding all 14 decoded arrays simultaneously.
+    let counts = newCounters();
+
+    // Children must be decoded first: their IDs define which records in the
+    // other sections belong to the caller. The full children array is released
+    // once its records are restored; only the small owned-ID set is retained.
+    let ownedSet = switch (decodeArray(parsed, "children", decodeChildProfile)) {
+      case (?children) {
+        let ids = List.empty<Text>();
+        for ((_, c) in children.vals()) {
+          if (c.parent == caller) {
+            ids.add(c.id);
+          };
+        };
+        for ((key, c) in children.vals()) {
+          if (c.parent == caller) {
+            switch (persistentChildProfiles.get(key)) {
+              case (?_ ) { counts.childProfiles.skipped += 1 };
+              case null {
+                persistentChildProfiles.add(key, c);
+                counts.childProfiles.restored += 1;
+              };
+            };
+          } else {
+            counts.childProfiles.skipped += 1;
+          };
+        };
+        ids.toArray();
+      };
       case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
     };
-    let diaperLogs = switch (decodeArray(parsed, "diaperLogs", decodeDiaperLog)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+    func isOwned(childId : Text) : Bool { ownedSet.contains(childId) };
+
+    do {
+      let diaperLogs = switch (decodeArray(parsed, "diaperLogs", decodeDiaperLog)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, d) in diaperLogs.vals()) {
+        if (isOwned(d.childId)) {
+          switch (persistentDiaperLogs.get(key)) {
+            case (?_ ) { counts.diaperLogs.skipped += 1 };
+            case null {
+              persistentDiaperLogs.add(key, d);
+              counts.diaperLogs.restored += 1;
+            };
+          };
+        } else {
+          counts.diaperLogs.skipped += 1;
+        };
+      };
     };
-    let breastfeedingSessions = switch (decodeArray(parsed, "breastfeedingSessions", decodeBreastfeedingSession)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let breastfeedingSessions = switch (decodeArray(parsed, "breastfeedingSessions", decodeBreastfeedingSession)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, s) in breastfeedingSessions.vals()) {
+        if (isOwned(s.childId)) {
+          switch (persistentBreastfeedingSessions.get(key)) {
+            case (?_ ) { counts.breastfeedingSessions.skipped += 1 };
+            case null {
+              persistentBreastfeedingSessions.add(key, s);
+              counts.breastfeedingSessions.restored += 1;
+            };
+          };
+        } else {
+          counts.breastfeedingSessions.skipped += 1;
+        };
+      };
     };
-    let tummyTimeSessions = switch (decodeArray(parsed, "tummyTimeSessions", decodeTummyTimeSession)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let tummyTimeSessions = switch (decodeArray(parsed, "tummyTimeSessions", decodeTummyTimeSession)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, s) in tummyTimeSessions.vals()) {
+        if (isOwned(s.childId)) {
+          switch (persistentTummyTimeSessions.get(key)) {
+            case (?_ ) { counts.tummyTimeSessions.skipped += 1 };
+            case null {
+              persistentTummyTimeSessions.add(key, s);
+              counts.tummyTimeSessions.restored += 1;
+            };
+          };
+        } else {
+          counts.tummyTimeSessions.skipped += 1;
+        };
+      };
     };
-    let journalNotes = switch (decodeArray(parsed, "journalNotes", decodeJournalNote)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let journalNotes = switch (decodeArray(parsed, "journalNotes", decodeJournalNote)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, n) in journalNotes.vals()) {
+        if (isOwned(n.childId)) {
+          switch (persistentJournalNotes.get(key)) {
+            case (?_ ) { counts.journalNotes.skipped += 1 };
+            case null {
+              persistentJournalNotes.add(key, n);
+              counts.journalNotes.restored += 1;
+            };
+          };
+        } else {
+          counts.journalNotes.skipped += 1;
+        };
+      };
     };
-    let weightEntries = switch (decodeArray(parsed, "weightEntries", decodeWeightEntry)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let weightEntries = switch (decodeArray(parsed, "weightEntries", decodeWeightEntry)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, e) in weightEntries.vals()) {
+        if (isOwned(e.childId)) {
+          switch (persistentWeightEntries.get(key)) {
+            case (?_ ) { counts.weightEntries.skipped += 1 };
+            case null {
+              persistentWeightEntries.add(key, e);
+              counts.weightEntries.restored += 1;
+            };
+          };
+        } else {
+          counts.weightEntries.skipped += 1;
+        };
+      };
     };
-    let heightEntries = switch (decodeArray(parsed, "heightEntries", decodeHeightEntry)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let heightEntries = switch (decodeArray(parsed, "heightEntries", decodeHeightEntry)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, e) in heightEntries.vals()) {
+        if (isOwned(e.childId)) {
+          switch (persistentHeightEntries.get(key)) {
+            case (?_ ) { counts.heightEntries.skipped += 1 };
+            case null {
+              persistentHeightEntries.add(key, e);
+              counts.heightEntries.restored += 1;
+            };
+          };
+        } else {
+          counts.heightEntries.skipped += 1;
+        };
+      };
     };
-    let milkPumpingSessions = switch (decodeArray(parsed, "milkPumpingSessions", decodeMilkPumpingSession)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let milkPumpingSessions = switch (decodeArray(parsed, "milkPumpingSessions", decodeMilkPumpingSession)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, s) in milkPumpingSessions.vals()) {
+        if (isOwned(s.childId)) {
+          switch (persistentMilkPumpingSessions.get(key)) {
+            case (?_ ) { counts.milkPumpingSessions.skipped += 1 };
+            case null {
+              persistentMilkPumpingSessions.add(key, s);
+              counts.milkPumpingSessions.restored += 1;
+            };
+          };
+        } else {
+          counts.milkPumpingSessions.skipped += 1;
+        };
+      };
     };
-    let solidFoodEntries = switch (decodeArray(parsed, "solidFoodEntries", decodeSolidFoodEntry)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let solidFoodEntries = switch (decodeArray(parsed, "solidFoodEntries", decodeSolidFoodEntry)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, e) in solidFoodEntries.vals()) {
+        if (isOwned(e.childId)) {
+          switch (persistentSolidFoodEntries.get(key)) {
+            case (?_ ) { counts.solidFoodEntries.skipped += 1 };
+            case null {
+              persistentSolidFoodEntries.add(key, e);
+              counts.solidFoodEntries.restored += 1;
+            };
+          };
+        } else {
+          counts.solidFoodEntries.skipped += 1;
+        };
+      };
     };
-    let feedingSessions = switch (decodeArray(parsed, "feedingSessions", decodeFeedingSession)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let feedingSessions = switch (decodeArray(parsed, "feedingSessions", decodeFeedingSession)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, s) in feedingSessions.vals()) {
+        if (isOwned(s.childId)) {
+          switch (persistentFeedingSessions.get(key)) {
+            case (?_ ) { counts.feedingSessions.skipped += 1 };
+            case null {
+              persistentFeedingSessions.add(key, s);
+              counts.feedingSessions.restored += 1;
+            };
+          };
+        } else {
+          counts.feedingSessions.skipped += 1;
+        };
+      };
     };
-    let activeTimers = switch (decodeArray(parsed, "activeTimers", decodeActiveTimer)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let activeTimers = switch (decodeArray(parsed, "activeTimers", decodeActiveTimer)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, t) in activeTimers.vals()) {
+        if (t.userId == caller) {
+          switch (persistentActiveTimers.get(key)) {
+            case (?_ ) { counts.activeTimers.skipped += 1 };
+            case null {
+              persistentActiveTimers.add(key, t);
+              counts.activeTimers.restored += 1;
+            };
+          };
+        } else {
+          counts.activeTimers.skipped += 1;
+        };
+      };
     };
-    let tummyTimeTimers = switch (decodeArray(parsed, "tummyTimeTimers", decodeTummyTimeTimer)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let tummyTimeTimers = switch (decodeArray(parsed, "tummyTimeTimers", decodeTummyTimeTimer)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, t) in tummyTimeTimers.vals()) {
+        if (t.userId == caller) {
+          switch (persistentTummyTimeTimers.get(key)) {
+            case (?_ ) { counts.tummyTimeTimers.skipped += 1 };
+            case null {
+              persistentTummyTimeTimers.add(key, t);
+              counts.tummyTimeTimers.restored += 1;
+            };
+          };
+        } else {
+          counts.tummyTimeTimers.skipped += 1;
+        };
+      };
     };
-    let childInviteLinks = switch (decodeArray(parsed, "childInviteLinks", decodeChildInviteLink)) {
-      case (?v) { v };
-      case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+
+    do {
+      let childInviteLinks = switch (decodeArray(parsed, "childInviteLinks", decodeChildInviteLink)) {
+        case (?v) { v };
+        case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
+      };
+      for ((key, l) in childInviteLinks.vals()) {
+        if (l.createdBy == caller) {
+          switch (persistentChildInviteLinks.get(key)) {
+            case (?_ ) { counts.childInviteLinks.skipped += 1 };
+            case null {
+              persistentChildInviteLinks.add(key, l);
+              counts.childInviteLinks.restored += 1;
+            };
+          };
+        } else {
+          counts.childInviteLinks.skipped += 1;
+        };
+      };
     };
-    let userProfile = switch (getField(parsed, "userProfile")) {
-      case (?#null_) { null };
+
+    switch (getField(parsed, "userProfile")) {
+      case (?#null_) {};
       case (?#object_(up)) {
         switch (decodeUserProfile(#object_(up))) {
-          case (?up2) { ?up2 };
+          case (?(owner, p)) {
+            if (owner == caller) {
+              switch (persistentUserProfiles.get(caller)) {
+                case (?_ ) { counts.userProfiles.skipped += 1 };
+                case null {
+                  persistentUserProfiles.add(caller, p);
+                  counts.userProfiles.restored += 1;
+                };
+              };
+            } else {
+              counts.userProfiles.skipped += 1;
+            };
+          };
           case null { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
         };
       };
       case _ { Runtime.trap("Neteisinga atsarginės kopijos struktūra") };
-    };
-
-    // 4. Determine which children the caller owns in this backup.
-    let ownedChildIds = List.empty<Text>();
-    for ((_, c) in children.vals()) {
-      if (c.parent == caller) {
-        ownedChildIds.add(c.id);
-      };
-    };
-    let ownedSet = ownedChildIds.toArray();
-    func isOwned(childId : Text) : Bool { ownedSet.contains(childId) };
-
-    // 5. Restore idempotently — skip entries whose stable ID already exists.
-    let counts = newCounters();
-
-    for ((key, c) in children.vals()) {
-      if (c.parent == caller) {
-        switch (persistentChildProfiles.get(key)) {
-          case (?_ ) { counts.childProfiles.skipped += 1 };
-          case null {
-            persistentChildProfiles.add(key, c);
-            counts.childProfiles.restored += 1;
-          };
-        };
-      } else {
-        counts.childProfiles.skipped += 1;
-      };
-    };
-
-    for ((key, d) in diaperLogs.vals()) {
-      if (isOwned(d.childId)) {
-        switch (persistentDiaperLogs.get(key)) {
-          case (?_ ) { counts.diaperLogs.skipped += 1 };
-          case null {
-            persistentDiaperLogs.add(key, d);
-            counts.diaperLogs.restored += 1;
-          };
-        };
-      } else {
-        counts.diaperLogs.skipped += 1;
-      };
-    };
-
-    for ((key, s) in breastfeedingSessions.vals()) {
-      if (isOwned(s.childId)) {
-        switch (persistentBreastfeedingSessions.get(key)) {
-          case (?_ ) { counts.breastfeedingSessions.skipped += 1 };
-          case null {
-            persistentBreastfeedingSessions.add(key, s);
-            counts.breastfeedingSessions.restored += 1;
-          };
-        };
-      } else {
-        counts.breastfeedingSessions.skipped += 1;
-      };
-    };
-
-    for ((key, s) in tummyTimeSessions.vals()) {
-      if (isOwned(s.childId)) {
-        switch (persistentTummyTimeSessions.get(key)) {
-          case (?_ ) { counts.tummyTimeSessions.skipped += 1 };
-          case null {
-            persistentTummyTimeSessions.add(key, s);
-            counts.tummyTimeSessions.restored += 1;
-          };
-        };
-      } else {
-        counts.tummyTimeSessions.skipped += 1;
-      };
-    };
-
-    for ((key, n) in journalNotes.vals()) {
-      if (isOwned(n.childId)) {
-        switch (persistentJournalNotes.get(key)) {
-          case (?_ ) { counts.journalNotes.skipped += 1 };
-          case null {
-            persistentJournalNotes.add(key, n);
-            counts.journalNotes.restored += 1;
-          };
-        };
-      } else {
-        counts.journalNotes.skipped += 1;
-      };
-    };
-
-    for ((key, e) in weightEntries.vals()) {
-      if (isOwned(e.childId)) {
-        switch (persistentWeightEntries.get(key)) {
-          case (?_ ) { counts.weightEntries.skipped += 1 };
-          case null {
-            persistentWeightEntries.add(key, e);
-            counts.weightEntries.restored += 1;
-          };
-        };
-      } else {
-        counts.weightEntries.skipped += 1;
-      };
-    };
-
-    for ((key, e) in heightEntries.vals()) {
-      if (isOwned(e.childId)) {
-        switch (persistentHeightEntries.get(key)) {
-          case (?_ ) { counts.heightEntries.skipped += 1 };
-          case null {
-            persistentHeightEntries.add(key, e);
-            counts.heightEntries.restored += 1;
-          };
-        };
-      } else {
-        counts.heightEntries.skipped += 1;
-      };
-    };
-
-    for ((key, s) in milkPumpingSessions.vals()) {
-      if (isOwned(s.childId)) {
-        switch (persistentMilkPumpingSessions.get(key)) {
-          case (?_ ) { counts.milkPumpingSessions.skipped += 1 };
-          case null {
-            persistentMilkPumpingSessions.add(key, s);
-            counts.milkPumpingSessions.restored += 1;
-          };
-        };
-      } else {
-        counts.milkPumpingSessions.skipped += 1;
-      };
-    };
-
-    for ((key, e) in solidFoodEntries.vals()) {
-      if (isOwned(e.childId)) {
-        switch (persistentSolidFoodEntries.get(key)) {
-          case (?_ ) { counts.solidFoodEntries.skipped += 1 };
-          case null {
-            persistentSolidFoodEntries.add(key, e);
-            counts.solidFoodEntries.restored += 1;
-          };
-        };
-      } else {
-        counts.solidFoodEntries.skipped += 1;
-      };
-    };
-
-    for ((key, s) in feedingSessions.vals()) {
-      if (isOwned(s.childId)) {
-        switch (persistentFeedingSessions.get(key)) {
-          case (?_ ) { counts.feedingSessions.skipped += 1 };
-          case null {
-            persistentFeedingSessions.add(key, s);
-            counts.feedingSessions.restored += 1;
-          };
-        };
-      } else {
-        counts.feedingSessions.skipped += 1;
-      };
-    };
-
-    for ((key, t) in activeTimers.vals()) {
-      if (t.userId == caller) {
-        switch (persistentActiveTimers.get(key)) {
-          case (?_ ) { counts.activeTimers.skipped += 1 };
-          case null {
-            persistentActiveTimers.add(key, t);
-            counts.activeTimers.restored += 1;
-          };
-        };
-      } else {
-        counts.activeTimers.skipped += 1;
-      };
-    };
-
-    for ((key, t) in tummyTimeTimers.vals()) {
-      if (t.userId == caller) {
-        switch (persistentTummyTimeTimers.get(key)) {
-          case (?_ ) { counts.tummyTimeTimers.skipped += 1 };
-          case null {
-            persistentTummyTimeTimers.add(key, t);
-            counts.tummyTimeTimers.restored += 1;
-          };
-        };
-      } else {
-        counts.tummyTimeTimers.skipped += 1;
-      };
-    };
-
-    for ((key, l) in childInviteLinks.vals()) {
-      if (l.createdBy == caller) {
-        switch (persistentChildInviteLinks.get(key)) {
-          case (?_ ) { counts.childInviteLinks.skipped += 1 };
-          case null {
-            persistentChildInviteLinks.add(key, l);
-            counts.childInviteLinks.restored += 1;
-          };
-        };
-      } else {
-        counts.childInviteLinks.skipped += 1;
-      };
-    };
-
-    switch (userProfile) {
-      case (?(owner, p)) {
-        if (owner == caller) {
-          switch (persistentUserProfiles.get(caller)) {
-            case (?_ ) { counts.userProfiles.skipped += 1 };
-            case null {
-              persistentUserProfiles.add(caller, p);
-              counts.userProfiles.restored += 1;
-            };
-          };
-        } else {
-          counts.userProfiles.skipped += 1;
-        };
-      };
-      case null {};
     };
 
     // 6. Build the summary result.
