@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Activity,
   Apple,
+  Archive,
   Baby,
   BookOpen,
   Droplets,
@@ -23,7 +24,8 @@ interface ModuleNavigationProps {
     | "journal"
     | "pumping"
     | "feeding"
-    | "solidfood";
+    | "solidfood"
+    | "backup";
   onModuleChange: (
     module:
       | "overview"
@@ -34,7 +36,8 @@ interface ModuleNavigationProps {
       | "journal"
       | "pumping"
       | "feeding"
-      | "solidfood",
+      | "solidfood"
+      | "backup",
   ) => void;
 }
 
@@ -52,6 +55,7 @@ export default function ModuleNavigation({
     { id: "pumping" as const, label: "Pieno nutraukimas", icon: Droplets },
     { id: "feeding" as const, label: "Maitinimas", icon: UtensilsCrossed },
     { id: "solidfood" as const, label: "Primaitinimas", icon: Apple },
+    { id: "backup" as const, label: "Atsarginė kopija", icon: Archive },
   ];
 
   return (

@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import ActivityTimeline from "../components/ActivityTimeline";
 import AddChildButton from "../components/AddChildButton";
+import BackupSection from "../components/BackupSection";
 import BreastfeedingModule from "../components/BreastfeedingModule";
 import ChildProfile from "../components/ChildProfile";
 import ChildSelector from "../components/ChildSelector";
@@ -32,7 +33,8 @@ type ActiveModule =
   | "journal"
   | "pumping"
   | "feeding"
-  | "solidfood";
+  | "solidfood"
+  | "backup";
 
 export default function Dashboard() {
   const { identity, isInitializing } = useInternetIdentity();
@@ -277,6 +279,13 @@ export default function Dashboard() {
             )}
             {activeModule === "solidfood" && (
               <SolidFoodModule childId={selectedChildId} />
+            )}
+            {activeModule === "backup" && (
+              <BackupSection
+                onDataRestored={() => {
+                  refetch();
+                }}
+              />
             )}
           </div>
 

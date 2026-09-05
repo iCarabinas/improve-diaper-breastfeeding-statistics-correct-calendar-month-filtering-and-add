@@ -58,6 +58,28 @@ export interface HeightEntry {
   'childId' : string,
   'timestamp' : bigint,
 }
+export interface ImportCounts {
+  'feedingSessions' : { 'skipped' : bigint, 'restored' : bigint },
+  'solidFoodEntries' : { 'skipped' : bigint, 'restored' : bigint },
+  'heightEntries' : { 'skipped' : bigint, 'restored' : bigint },
+  'weightEntries' : { 'skipped' : bigint, 'restored' : bigint },
+  'activeTimers' : { 'skipped' : bigint, 'restored' : bigint },
+  'userProfiles' : { 'skipped' : bigint, 'restored' : bigint },
+  'tummyTimeSessions' : { 'skipped' : bigint, 'restored' : bigint },
+  'journalNotes' : { 'skipped' : bigint, 'restored' : bigint },
+  'diaperLogs' : { 'skipped' : bigint, 'restored' : bigint },
+  'tummyTimeTimers' : { 'skipped' : bigint, 'restored' : bigint },
+  'breastfeedingSessions' : { 'skipped' : bigint, 'restored' : bigint },
+  'childInviteLinks' : { 'skipped' : bigint, 'restored' : bigint },
+  'childProfiles' : { 'skipped' : bigint, 'restored' : bigint },
+  'milkPumpingSessions' : { 'skipped' : bigint, 'restored' : bigint },
+}
+export interface ImportResult {
+  'totalRestored' : bigint,
+  'success' : boolean,
+  'counts' : ImportCounts,
+  'totalSkipped' : bigint,
+}
 export interface InviteCode {
   'created' : Time,
   'code' : string,
@@ -237,6 +259,7 @@ export interface _SERVICE {
   'deleteTummyTimeSession' : ActorMethod<[string, string], undefined>,
   'deleteWeightEntry' : ActorMethod<[string, string], undefined>,
   'execute' : ActorMethod<[string], Result>,
+  'exportAllData' : ActorMethod<[], string>,
   'generateChildInviteLink' : ActorMethod<[string], string>,
   'generateInviteCode' : ActorMethod<[], string>,
   'getActiveBreastfeedingTimer' : ActorMethod<
@@ -246,6 +269,7 @@ export interface _SERVICE {
   'getActiveTummyTimeTimer' : ActorMethod<[string], [] | [TummyTimeTimerState]>,
   'getAllPublicChildren' : ActorMethod<[], Array<ChildProfileView>>,
   'getAllRSVPs' : ActorMethod<[], Array<RSVP>>,
+  'getApiDoc' : ActorMethod<[], string>,
   'getBreastfeedingSessionsForChild' : ActorMethod<
     [string],
     Array<BreastfeedingSession>
@@ -296,6 +320,7 @@ export interface _SERVICE {
   >,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getWeightEntriesForChild' : ActorMethod<[string], Array<WeightEntry>>,
+  'importAllData' : ActorMethod<[string], ImportResult>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'logDiaperChange' : ActorMethod<
     [string, boolean, boolean, boolean],

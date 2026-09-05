@@ -43,6 +43,14 @@ export default {
           DEFAULT: 'oklch(var(--destructive))',
           foreground: 'oklch(var(--destructive-foreground))',
         },
+        success: {
+          DEFAULT: 'oklch(var(--success))',
+          foreground: 'oklch(var(--success-foreground))',
+        },
+        warning: {
+          DEFAULT: 'oklch(var(--warning))',
+          foreground: 'oklch(var(--warning-foreground))',
+        },
         border: 'oklch(var(--border))',
         input: 'oklch(var(--input))',
         ring: 'oklch(var(--ring))',

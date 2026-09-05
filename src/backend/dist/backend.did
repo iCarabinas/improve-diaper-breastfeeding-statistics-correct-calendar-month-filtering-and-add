@@ -120,6 +120,72 @@ type InviteCode =
    created: Time;
    used: bool;
  };
+type ImportResult = 
+ record {
+   counts: ImportCounts;
+   success: bool;
+   totalRestored: nat;
+   totalSkipped: nat;
+ };
+type ImportCounts = 
+ record {
+   activeTimers: record {
+                   restored: nat;
+                   skipped: nat;
+                 };
+   breastfeedingSessions: record {
+                            restored: nat;
+                            skipped: nat;
+                          };
+   childInviteLinks: record {
+                       restored: nat;
+                       skipped: nat;
+                     };
+   childProfiles: record {
+                    restored: nat;
+                    skipped: nat;
+                  };
+   diaperLogs: record {
+                 restored: nat;
+                 skipped: nat;
+               };
+   feedingSessions: record {
+                      restored: nat;
+                      skipped: nat;
+                    };
+   heightEntries: record {
+                    restored: nat;
+                    skipped: nat;
+                  };
+   journalNotes: record {
+                   restored: nat;
+                   skipped: nat;
+                 };
+   milkPumpingSessions: record {
+                          restored: nat;
+                          skipped: nat;
+                        };
+   solidFoodEntries: record {
+                       restored: nat;
+                       skipped: nat;
+                     };
+   tummyTimeSessions: record {
+                        restored: nat;
+                        skipped: nat;
+                      };
+   tummyTimeTimers: record {
+                      restored: nat;
+                      skipped: nat;
+                    };
+   userProfiles: record {
+                   restored: nat;
+                   skipped: nat;
+                 };
+   weightEntries: record {
+                    restored: nat;
+                    skipped: nat;
+                  };
+ };
 type HeightEntry = 
  record {
    childId: text;
@@ -248,6 +314,7 @@ service : {
   deleteTummyTimeSession: (childId: text, sessionId: text) -> ();
   deleteWeightEntry: (childId: text, weightId: text) -> ();
   execute: (qJson: text) -> (Result) query;
+  exportAllData: () -> (text) query;
   generateChildInviteLink: (childId: text) -> (text);
   generateInviteCode: () -> (text);
   getActiveBreastfeedingTimer: (childId: text) ->
@@ -255,6 +322,7 @@ service : {
   getActiveTummyTimeTimer: (childId: text) -> (opt TummyTimeTimerState) query;
   getAllPublicChildren: () -> (vec ChildProfileView) query;
   getAllRSVPs: () -> (vec RSVP) query;
+  getApiDoc: () -> (text) query;
   getBreastfeedingSessionsForChild: (childId: text) ->
    (vec BreastfeedingSession) query;
   getCallerUserProfile: () -> (opt UserProfile) query;
@@ -298,6 +366,7 @@ service : {
    (vec TummyTimeSession) query;
   getUserProfile: (user: principal) -> (opt UserProfile) query;
   getWeightEntriesForChild: (childId: text) -> (vec WeightEntry) query;
+  importAllData: ("blob": text) -> (ImportResult);
   isCallerAdmin: () -> (bool) query;
   logDiaperChange: (childId: text, kakis: bool, sysius: bool, tuscia:
    bool) -> ();

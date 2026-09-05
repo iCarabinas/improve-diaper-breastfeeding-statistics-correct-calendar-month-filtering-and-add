@@ -95,27 +95,73 @@ export interface TummyTimeTimerState {
 export interface _ImmutableObjectStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
+export interface ImportCounts {
+    feedingSessions: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    solidFoodEntries: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    heightEntries: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    weightEntries: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    activeTimers: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    userProfiles: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    tummyTimeSessions: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    journalNotes: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    diaperLogs: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    tummyTimeTimers: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    breastfeedingSessions: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    childInviteLinks: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    childProfiles: {
+        skipped: bigint;
+        restored: bigint;
+    };
+    milkPumpingSessions: {
+        skipped: bigint;
+        restored: bigint;
+    };
+}
 export interface _ImmutableObjectStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
 }
-export interface DiaperLog {
-    contents: {
-        tuscia: boolean;
-        kakis: boolean;
-        sysius: boolean;
-    };
-    childId: string;
-    timestamp: bigint;
-}
-export interface ChildProfileView {
-    id: string;
-    birthDate: bigint;
-    name: string;
-    sharedWith: Array<Principal>;
-    isPublic: boolean;
-    photo?: ExternalBlob;
-    parent: Principal;
+export interface ImportResult {
+    totalRestored: bigint;
+    success: boolean;
+    counts: ImportCounts;
+    totalSkipped: bigint;
 }
 export interface JournalNote {
     createdAt: bigint;
@@ -139,11 +185,24 @@ export interface _ImmutableObjectStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
 }
+export interface DiaperLog {
+    contents: {
+        tuscia: boolean;
+        kakis: boolean;
+        sysius: boolean;
+    };
+    childId: string;
+    timestamp: bigint;
+}
 export interface BreastfeedingSession {
     startTime: bigint;
     duration: bigint;
     side: Variant_left_right;
     childId: string;
+}
+export interface Result {
+    hasMore: boolean;
+    rows: Array<Array<Cell>>;
 }
 export interface ActiveTimerState {
     startTime: bigint;
@@ -154,13 +213,18 @@ export interface ActiveTimerState {
     totalPausedDuration: bigint;
     childId: string;
 }
-export interface Result {
-    hasMore: boolean;
-    rows: Array<Array<Cell>>;
-}
 export interface Cell {
     value: Value;
     name: string;
+}
+export interface ChildProfileView {
+    id: string;
+    birthDate: bigint;
+    name: string;
+    sharedWith: Array<Principal>;
+    isPublic: boolean;
+    photo?: ExternalBlob;
+    parent: Principal;
 }
 export type Value = {
     __kind__: "int";
@@ -265,12 +329,14 @@ export interface backendInterface {
     deleteTummyTimeSession(childId: string, sessionId: string): Promise<void>;
     deleteWeightEntry(childId: string, weightId: string): Promise<void>;
     execute(qJson: string): Promise<Result>;
+    exportAllData(): Promise<string>;
     generateChildInviteLink(childId: string): Promise<string>;
     generateInviteCode(): Promise<string>;
     getActiveBreastfeedingTimer(childId: string): Promise<ActiveTimerState | null>;
     getActiveTummyTimeTimer(childId: string): Promise<TummyTimeTimerState | null>;
     getAllPublicChildren(): Promise<Array<ChildProfileView>>;
     getAllRSVPs(): Promise<Array<RSVP>>;
+    getApiDoc(): Promise<string>;
     getBreastfeedingSessionsForChild(childId: string): Promise<Array<BreastfeedingSession>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -307,6 +373,7 @@ export interface backendInterface {
     getTummyTimeSessionsForChild(childId: string): Promise<Array<TummyTimeSession>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getWeightEntriesForChild(childId: string): Promise<Array<WeightEntry>>;
+    importAllData(blob: string): Promise<ImportResult>;
     isCallerAdmin(): Promise<boolean>;
     logDiaperChange(childId: string, kakis: boolean, sysius: boolean, tuscia: boolean): Promise<void>;
     pauseBreastfeedingTimer(childId: string): Promise<void>;
@@ -723,6 +790,20 @@ export class Backend implements backendInterface {
             return from_candid_Result_n20(this._uploadFile, this._downloadFile, result);
         }
     }
+    async exportAllData(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.exportAllData();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.exportAllData();
+            return result;
+        }
+    }
     async generateChildInviteLink(arg0: string): Promise<string> {
         if (this.processError) {
             try {
@@ -804,6 +885,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getAllRSVPs();
+            return result;
+        }
+    }
+    async getApiDoc(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getApiDoc();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getApiDoc();
             return result;
         }
     }
@@ -1100,6 +1195,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getWeightEntriesForChild(arg0);
+            return result;
+        }
+    }
+    async importAllData(arg0: string): Promise<ImportResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.importAllData(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.importAllData(arg0);
             return result;
         }
     }

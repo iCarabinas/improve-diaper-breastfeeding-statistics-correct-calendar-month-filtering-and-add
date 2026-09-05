@@ -1,15 +1,17 @@
 {
-  "overview": "Kūdikio stebėjimo dienoraštis su pilvo laiko sesijų istorija ir trynimo galimybe",
+  "overview": "A baby tracking app for logging diapers, breastfeeding, tummy time, weight, height, journal notes, pumping, feeding, and solid food, with full data backup and restore.",
   "features": [
-    "Pilvo laiko sesijų istorijos sąrašas (paskutinės 10 sesijų)",
-    "Sesijų trynimas su patvirtinimo dialogu",
-    "Statistikos automatinis atnaujinimas po trynimo"
+    "Log diapers, breastfeeding, tummy time, weight, height, journal, pumping, feeding, and solid food",
+    "Track multiple children with sharing",
+    "Export all data as a JSON backup file",
+    "Import a backup file to restore data without duplicates"
   ],
   "category": "productivity",
   "tags": [
     "baby-tracking",
-    "tummy-time",
-    "lithuanian"
+    "parenting",
+    "data-backup",
+    "statistics"
   ],
-  "last_updated": "2026-07-04T12:39:29.852Z"
+  "last_updated": "2026-09-05T10:55:08.055Z"
 }

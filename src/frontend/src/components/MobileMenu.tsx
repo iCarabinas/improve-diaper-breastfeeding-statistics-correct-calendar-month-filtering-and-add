@@ -10,6 +10,7 @@ import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import {
   Activity,
   Apple,
+  Archive,
   Baby,
   BookOpen,
   Droplets,
@@ -35,7 +36,8 @@ interface MobileMenuProps {
     | "journal"
     | "pumping"
     | "feeding"
-    | "solidfood";
+    | "solidfood"
+    | "backup";
   onModuleChange: (
     module:
       | "overview"
@@ -46,7 +48,8 @@ interface MobileMenuProps {
       | "journal"
       | "pumping"
       | "feeding"
-      | "solidfood",
+      | "solidfood"
+      | "backup",
   ) => void;
 }
 
@@ -71,6 +74,7 @@ export default function MobileMenu({
     { id: "pumping" as const, label: "Pieno nutraukimas", icon: Droplets },
     { id: "feeding" as const, label: "Maitinimas", icon: UtensilsCrossed },
     { id: "solidfood" as const, label: "Primaitinimas", icon: Apple },
+    { id: "backup" as const, label: "Atsarginė kopija", icon: Archive },
   ];
 
   const handleModuleClick = (
@@ -83,7 +87,8 @@ export default function MobileMenu({
       | "journal"
       | "pumping"
       | "feeding"
-      | "solidfood",
+      | "solidfood"
+      | "backup",
   ) => {
     onModuleChange(moduleId);
     setOpen(false);

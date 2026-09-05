@@ -168,6 +168,43 @@ export const WeightEntry = IDL.Record({
   'weightId' : IDL.Text,
   'timestamp' : IDL.Int,
 });
+export const ImportCounts = IDL.Record({
+  'feedingSessions' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'solidFoodEntries' : IDL.Record({
+    'skipped' : IDL.Nat,
+    'restored' : IDL.Nat,
+  }),
+  'heightEntries' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'weightEntries' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'activeTimers' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'userProfiles' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'tummyTimeSessions' : IDL.Record({
+    'skipped' : IDL.Nat,
+    'restored' : IDL.Nat,
+  }),
+  'journalNotes' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'diaperLogs' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'tummyTimeTimers' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'breastfeedingSessions' : IDL.Record({
+    'skipped' : IDL.Nat,
+    'restored' : IDL.Nat,
+  }),
+  'childInviteLinks' : IDL.Record({
+    'skipped' : IDL.Nat,
+    'restored' : IDL.Nat,
+  }),
+  'childProfiles' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+  'milkPumpingSessions' : IDL.Record({
+    'skipped' : IDL.Nat,
+    'restored' : IDL.Nat,
+  }),
+});
+export const ImportResult = IDL.Record({
+  'totalRestored' : IDL.Nat,
+  'success' : IDL.Bool,
+  'counts' : ImportCounts,
+  'totalSkipped' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
   '_immutableObjectStorageBlobsAreLive' : IDL.Func(
@@ -278,6 +315,7 @@ export const idlService = IDL.Service({
   'deleteTummyTimeSession' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'deleteWeightEntry' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'execute' : IDL.Func([IDL.Text], [Result], ['query']),
+  'exportAllData' : IDL.Func([], [IDL.Text], ['query']),
   'generateChildInviteLink' : IDL.Func([IDL.Text], [IDL.Text], []),
   'generateInviteCode' : IDL.Func([], [IDL.Text], []),
   'getActiveBreastfeedingTimer' : IDL.Func(
@@ -292,6 +330,7 @@ export const idlService = IDL.Service({
     ),
   'getAllPublicChildren' : IDL.Func([], [IDL.Vec(ChildProfileView)], ['query']),
   'getAllRSVPs' : IDL.Func([], [IDL.Vec(RSVP)], ['query']),
+  'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
   'getBreastfeedingSessionsForChild' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(BreastfeedingSession)],
@@ -390,6 +429,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(WeightEntry)],
       ['query'],
     ),
+  'importAllData' : IDL.Func([IDL.Text], [ImportResult], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'logDiaperChange' : IDL.Func(
       [IDL.Text, IDL.Bool, IDL.Bool, IDL.Bool],
@@ -623,6 +663,49 @@ export const idlFactory = ({ IDL }) => {
     'weightId' : IDL.Text,
     'timestamp' : IDL.Int,
   });
+  const ImportCounts = IDL.Record({
+    'feedingSessions' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'solidFoodEntries' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'heightEntries' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'weightEntries' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'activeTimers' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'userProfiles' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'tummyTimeSessions' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'journalNotes' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'diaperLogs' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'tummyTimeTimers' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'breastfeedingSessions' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'childInviteLinks' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+    'childProfiles' : IDL.Record({ 'skipped' : IDL.Nat, 'restored' : IDL.Nat }),
+    'milkPumpingSessions' : IDL.Record({
+      'skipped' : IDL.Nat,
+      'restored' : IDL.Nat,
+    }),
+  });
+  const ImportResult = IDL.Record({
+    'totalRestored' : IDL.Nat,
+    'success' : IDL.Bool,
+    'counts' : ImportCounts,
+    'totalSkipped' : IDL.Nat,
+  });
   
   return IDL.Service({
     '_immutableObjectStorageBlobsAreLive' : IDL.Func(
@@ -733,6 +816,7 @@ export const idlFactory = ({ IDL }) => {
     'deleteTummyTimeSession' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'deleteWeightEntry' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'execute' : IDL.Func([IDL.Text], [Result], ['query']),
+    'exportAllData' : IDL.Func([], [IDL.Text], ['query']),
     'generateChildInviteLink' : IDL.Func([IDL.Text], [IDL.Text], []),
     'generateInviteCode' : IDL.Func([], [IDL.Text], []),
     'getActiveBreastfeedingTimer' : IDL.Func(
@@ -751,6 +835,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getAllRSVPs' : IDL.Func([], [IDL.Vec(RSVP)], ['query']),
+    'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
     'getBreastfeedingSessionsForChild' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(BreastfeedingSession)],
@@ -853,6 +938,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(WeightEntry)],
         ['query'],
       ),
+    'importAllData' : IDL.Func([IDL.Text], [ImportResult], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'logDiaperChange' : IDL.Func(
         [IDL.Text, IDL.Bool, IDL.Bool, IDL.Bool],

@@ -2,6 +2,7 @@ import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import type { Principal } from "@icp-sdk/core/principal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ExternalBlob, createActor } from "../backend";
+import type { ImportResult } from "../backend";
 import type {
   SolidFoodCategory,
   SolidFoodEntry,
@@ -1264,6 +1265,34 @@ export function useDeleteHeightEntry() {
       queryClient.invalidateQueries({
         queryKey: ["heightEntries", variables.childId],
       });
+    },
+  });
+}
+
+// Backup / Restore Queries
+export function useExportAllData() {
+  const { actor } = useTypedActor();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Aktorius nepasiekiamas");
+      return actor.exportAllData();
+    },
+  });
+}
+
+export function useImportAllData() {
+  const { actor } = useTypedActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<ImportResult, Error, string>({
+    mutationFn: async (blob: string) => {
+      if (!actor) throw new Error("Aktorius nepasiekiamas");
+      return actor.importAllData(blob);
+    },
+    onSuccess: () => {
+      // Invalidate all data queries so the UI reflects restored data
+      queryClient.invalidateQueries();
     },
   });
 }

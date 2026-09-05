@@ -31,6 +31,12 @@
     --destructive: 0.6 0.22 25;
     --destructive-foreground: 1 0 0;
 
+    /* Success / warning - for backup & restore feedback states */
+    --success: 0.58 0.16 155;
+    --success-foreground: 1 0 0;
+    --warning: 0.78 0.14 80;
+    --warning-foreground: 0.3 0.05 30;
+
     --border: 0.9 0.02 40;
     --input: 0.9 0.02 40;
     --ring: 0.65 0.18 330;
@@ -71,6 +77,12 @@
     /* Destructive - Keep red for warnings */
     --destructive: 0.65 0.2 25;
     --destructive-foreground: 0.95 0.002 0;
+
+    /* Success / warning - for backup & restore feedback states */
+    --success: 0.68 0.14 155;
+    --success-foreground: 0.15 0.002 0;
+    --warning: 0.78 0.14 80;
+    --warning-foreground: 0.15 0.002 0;
 
     /* Borders and inputs - Neutral gray */
     --border: 0.3 0.003 0;
