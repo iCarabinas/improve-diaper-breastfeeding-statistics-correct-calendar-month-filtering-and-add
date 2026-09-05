@@ -1,0 +1,15 @@
+{
+  "overview": "Kūdikio stebėjimo dienoraštis su pilvo laiko sesijų istorija ir trynimo galimybe",
+  "features": [
+    "Pilvo laiko sesijų istorijos sąrašas (paskutinės 10 sesijų)",
+    "Sesijų trynimas su patvirtinimo dialogu",
+    "Statistikos automatinis atnaujinimas po trynimo"
+  ],
+  "category": "productivity",
+  "tags": [
+    "baby-tracking",
+    "tummy-time",
+    "lithuanian"
+  ],
+  "last_updated": "2026-07-04T12:39:29.852Z"
+}

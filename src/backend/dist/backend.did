@@ -1,0 +1,343 @@
+type _ImmutableObjectStorageRefillResult = 
+ record {
+   success: opt bool;
+   topped_up_amount: opt nat;
+ };
+type _ImmutableObjectStorageRefillInformation = record {
+                                                  proposed_top_up_amount:
+                                                   opt nat;};
+type _ImmutableObjectStorageCreateCertificateResult = 
+ record {
+   blob_hash: text;
+   method: text;
+ };
+type WeightEntry = 
+ record {
+   childId: text;
+   timestamp: int;
+   weight: float64;
+   weightId: text;
+ };
+type Value = 
+ variant {
+   "bool": bool;
+   float: float64;
+   "int": int;
+   "nat": nat;
+   "null";
+   "text": text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = record {name: text;};
+type TummyTimeTimerState = 
+ record {
+   childId: text;
+   isPaused: bool;
+   pausedAt: opt int;
+   startTime: int;
+   totalPausedDuration: int;
+   userId: principal;
+ };
+type TummyTimeSession = 
+ record {
+   childId: text;
+   duration: int;
+   sessionId: text;
+   startTime: int;
+ };
+type Time = int;
+type SolidFoodEntry = 
+ record {
+   category: variant {
+               berries;
+               eggs;
+               fish;
+               fruits;
+               grains;
+               meat;
+               vegetables;
+             };
+   childId: text;
+   color: text;
+   entryId: text;
+   foodName: text;
+   notes: opt text;
+   reaction: variant {
+               disliked;
+               liked;
+               unclear;
+             };
+   timestamp: int;
+ };
+type Result = 
+ record {
+   hasMore: bool;
+   rows: vec vec Cell;
+ };
+type RSVP = 
+ record {
+   attending: bool;
+   inviteCode: text;
+   name: text;
+   timestamp: Time;
+ };
+type NoteColor = 
+ variant {
+   blue;
+   green;
+   pink;
+   purple;
+   yellow;
+ };
+type MilkPumpingSession = 
+ record {
+   childId: text;
+   mlAmount: float64;
+   sessionId: text;
+   side: variant {
+           both;
+           left;
+           right;
+         };
+   timestamp: int;
+ };
+type JournalNote = 
+ record {
+   childId: text;
+   color: NoteColor;
+   createdAt: int;
+   "text": text;
+   updatedAt: int;
+ };
+type InviteCode = 
+ record {
+   code: text;
+   created: Time;
+   used: bool;
+ };
+type HeightEntry = 
+ record {
+   childId: text;
+   height: float64;
+   heightId: text;
+   timestamp: int;
+ };
+type FeedingSession = 
+ record {
+   childId: text;
+   color: text;
+   feedingType: variant {
+                  mamosPienas;
+                  misinukas;
+                };
+   mlAmount: float64;
+   sessionId: text;
+   timestamp: int;
+ };
+type ExternalBlob = blob;
+type DiaperLog = 
+ record {
+   childId: text;
+   contents: record {
+               kakis: bool;
+               sysius: bool;
+               tuscia: bool;
+             };
+   timestamp: int;
+ };
+type ChildProfileView = 
+ record {
+   birthDate: int;
+   id: text;
+   isPublic: bool;
+   name: text;
+   parent: principal;
+   photo: opt ExternalBlob;
+   sharedWith: vec principal;
+ };
+type Cell = 
+ record {
+   name: text;
+   value: Value;
+ };
+type BreastfeedingSession = 
+ record {
+   childId: text;
+   duration: int;
+   side: variant {
+           left;
+           right;
+         };
+   startTime: int;
+ };
+type ActiveTimerState = 
+ record {
+   childId: text;
+   isPaused: bool;
+   pausedAt: opt int;
+   side: variant {
+           left;
+           right;
+         };
+   startTime: int;
+   totalPausedDuration: int;
+   userId: principal;
+ };
+service : {
+  _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion: (blobs: vec blob) -> ();
+  _immutableObjectStorageCreateCertificate: (blobHash: text) ->
+   (_ImmutableObjectStorageCreateCertificateResult);
+  _immutableObjectStorageRefillCashier: (refillInformation:
+   opt _ImmutableObjectStorageRefillInformation) ->
+   (_ImmutableObjectStorageRefillResult);
+  _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  _initializeAccessControl: () -> ();
+  acceptChildInvite: (inviteCode: text) -> ();
+  addChild: (name: text, birthDate: int, photo: opt ExternalBlob, isPublic:
+   bool) -> (text);
+  addFeedingSession: (childId: text, timestamp: int, mlAmount: float64,
+   feedingType: variant {
+                  mamosPienas;
+                  misinukas;
+                }, color: text) -> ();
+  addHeightEntry: (childId: text, heightCm: float64, dateTimestamp: int) ->
+   ();
+  addJournalNote: (childId: text, "text": text, color: NoteColor) -> ();
+  addManualBreastfeedingSession: (childId: text, date: int, duration: 
+   int, side: variant {
+                left;
+                right;
+              }) -> ();
+  addMilkPumpingSession: (childId: text, timestamp: int, mlAmount: float64,
+   side: variant {
+           both;
+           left;
+           right;
+         }) -> ();
+  addSolidFoodEntry: (childId: text, foodName: text, category:
+   variant {
+     berries;
+     eggs;
+     fish;
+     fruits;
+     grains;
+     meat;
+     vegetables;
+   }, color: text, reaction: variant {
+                               disliked;
+                               liked;
+                               unclear;
+                             }, notes: opt text, timestamp: int) -> ();
+  addWeightEntry: (childId: text, weight: float64, timestamp: int) -> ();
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  calculateAgeInDays: (childId: text) -> (nat) query;
+  completeBreastfeedingSession: (childId: text) -> ();
+  completeTummyTimeSession: (childId: text) -> ();
+  deleteFeedingSession: (childId: text, sessionId: text) -> ();
+  deleteHeightEntry: (childId: text, heightId: text) -> ();
+  deleteJournalNote: (childId: text, noteId: text) -> ();
+  deleteMilkPumpingSession: (childId: text, sessionId: text) -> ();
+  deleteSolidFoodEntry: (childId: text, entryId: text) -> ();
+  deleteTummyTimeSession: (childId: text, sessionId: text) -> ();
+  deleteWeightEntry: (childId: text, weightId: text) -> ();
+  execute: (qJson: text) -> (Result) query;
+  generateChildInviteLink: (childId: text) -> (text);
+  generateInviteCode: () -> (text);
+  getActiveBreastfeedingTimer: (childId: text) ->
+   (opt ActiveTimerState) query;
+  getActiveTummyTimeTimer: (childId: text) -> (opt TummyTimeTimerState) query;
+  getAllPublicChildren: () -> (vec ChildProfileView) query;
+  getAllRSVPs: () -> (vec RSVP) query;
+  getBreastfeedingSessionsForChild: (childId: text) ->
+   (vec BreastfeedingSession) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getChild: (childId: text) -> (ChildProfileView) query;
+  getChildStatistics: (childId: text) ->
+   (record {
+      totalBreastfeedingSessions: nat;
+      totalDiapers: nat;
+      totalTummyTime: int;
+    }) query;
+  getChildrenByParent: (parent: principal) -> (vec ChildProfileView) query;
+  getDiaperLogsForChild: (childId: text) -> (vec DiaperLog) query;
+  getFeedingSessionsForChild: (childId: text) -> (vec FeedingSession) query;
+  getHeightEntriesForChild: (childId: text) -> (vec HeightEntry) query;
+  getInviteCodes: () -> (vec InviteCode) query;
+  getJournalNotesForChild: (childId: text) -> (vec JournalNote) query;
+  getMilkPumpingSessionsForChild: (childId: text) ->
+   (vec MilkPumpingSession) query;
+  getSharedChildren: () -> (vec ChildProfileView) query;
+  getSharedUsers: (childId: text) -> (vec principal) query;
+  getSolidFoodEntriesForChild: (childId: text) -> (vec SolidFoodEntry) query;
+  getSolidFoodStatistics: (childId: text) ->
+   (record {
+      thisMonth: nat;
+      thisWeek: nat;
+      thisYear: nat;
+    }) query;
+  getSolidFoodStatisticsByCategory: (childId: text, startDate: int, endDate:
+   int) ->
+   (record {
+      berries: nat;
+      eggs: nat;
+      fish: nat;
+      fruits: nat;
+      grains: nat;
+      meat: nat;
+      vegetables: nat;
+    }) query;
+  getTummyTimeSessionsForChild: (childId: text) ->
+   (vec TummyTimeSession) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  getWeightEntriesForChild: (childId: text) -> (vec WeightEntry) query;
+  isCallerAdmin: () -> (bool) query;
+  logDiaperChange: (childId: text, kakis: bool, sysius: bool, tuscia:
+   bool) -> ();
+  pauseBreastfeedingTimer: (childId: text) -> ();
+  pauseTummyTimeTimer: (childId: text) -> ();
+  regenerateChildPhoto: (childId: text) -> ();
+  resumeBreastfeedingTimer: (childId: text) -> ();
+  resumeTummyTimeTimer: (childId: text) -> ();
+  revokeChildAccess: (childId: text, userId: principal) -> ();
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  schema: () -> (text) query;
+  searchJournalNotes: (childId: text, searchTerm: text) ->
+   (vec JournalNote) query;
+  shareChildWithUser: (childId: text, userId: principal) -> ();
+  startBreastfeedingSession: (childId: text, side: variant {
+                                                     left;
+                                                     right;
+                                                   }) -> ();
+  startTummyTimeSession: (childId: text) -> ();
+  submitRSVP: (name: text, attending: bool, inviteCode: text) -> ();
+  toggleChildVisibility: (childId: text) -> ();
+  updateHeightEntry: (childId: text, heightId: text, newHeight: float64,
+   newTimestamp: int) -> ();
+  updateJournalNote: (childId: text, noteId: text, newText: text, newColor:
+   opt NoteColor) -> ();
+  updateSolidFoodEntry: (childId: text, entryId: text, newFoodName: text,
+   newCategory: variant {
+                  berries;
+                  eggs;
+                  fish;
+                  fruits;
+                  grains;
+                  meat;
+                  vegetables;
+                }, newColor: text, newReaction:
+   variant {
+     disliked;
+     liked;
+     unclear;
+   }, newNotes: opt text) -> ();
+  updateWeightEntry: (childId: text, weightId: text, newWeight: float64,
+   newTimestamp: int) -> ();
+}

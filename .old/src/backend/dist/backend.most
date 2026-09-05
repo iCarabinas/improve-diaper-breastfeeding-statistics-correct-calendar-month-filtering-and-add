@@ -1,0 +1,507 @@
+// Version: 4.0.0
+type AccessControlState__45017055 =
+  {
+    var adminAssigned : Bool;
+    userRoles : Map__386906547<Principal, UserRole__1073662873>
+  };
+type ActiveTimerState__1009963374 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    side : {#left; #right};
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type ActiveTimerState__580469458 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    side : {#left; #right};
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type ActiveTimerState__773227379 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    side : {#left; #right};
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type BreastfeedingSession__1008904786 =
+  {childId : Text; duration : Int; side : {#left; #right}; startTime : Int};
+type BreastfeedingSession__1048876173 =
+  {childId : Text; duration : Int; side : {#left; #right}; startTime : Int};
+type BreastfeedingSession__986337225 =
+  {childId : Text; duration : Int; side : {#left; #right}; startTime : Int};
+type ChildInviteLink__507130320 =
+  {
+    childId : Text;
+    createdAt : Int;
+    createdBy : Principal;
+    inviteCode : Text;
+    used : Bool
+  };
+type ChildInviteLink__689951076 =
+  {
+    childId : Text;
+    createdAt : Int;
+    createdBy : Principal;
+    inviteCode : Text;
+    used : Bool
+  };
+type ChildInviteLink__747335125 =
+  {
+    childId : Text;
+    createdAt : Int;
+    createdBy : Principal;
+    inviteCode : Text;
+    used : Bool
+  };
+type ChildProfile__1066174519 =
+  {
+    birthDate : Int;
+    id : Text;
+    isPublic : Bool;
+    name : Text;
+    parent : Principal;
+    photo : ?ExternalBlob__671167343;
+    sharedWith : List__89170296<Principal>
+  };
+type ChildProfile__388325982 =
+  {
+    birthDate : Int;
+    id : Text;
+    isPublic : Bool;
+    name : Text;
+    parent : Principal;
+    photo : ?ExternalBlob__671167343;
+    sharedWith : List__89170296<Principal>
+  };
+type ChildProfile__523144385 =
+  {
+    birthDate : Int;
+    id : Text;
+    isPublic : Bool;
+    name : Text;
+    parent : Principal;
+    photo : ?ExternalBlob__671167343;
+    sharedWith : List__89170296<Principal>
+  };
+type Data__265875254<K, V> = {var count : Nat__58649523; kvs : [var ?(K, V)]};
+type DiaperLog__1047150293 =
+  {
+    childId : Text;
+    contents : {kakis : Bool; sysius : Bool; tuscia : Bool};
+    timestamp : Int
+  };
+type DiaperLog__669381521 =
+  {
+    childId : Text;
+    contents : {kakis : Bool; sysius : Bool; tuscia : Bool};
+    timestamp : Int
+  };
+type DiaperLog__858102138 =
+  {
+    childId : Text;
+    contents : {kakis : Bool; sysius : Bool; tuscia : Bool};
+    timestamp : Int
+  };
+type ExternalBlob__671167343 = Blob;
+type FeedingSession__149849716 =
+  {
+    childId : Text;
+    color : Text;
+    feedingType : {#mamosPienas; #misinukas};
+    mlAmount : Float;
+    sessionId : Text;
+    timestamp : Int
+  };
+type FeedingSession__443540178 =
+  {
+    childId : Text;
+    color : Text;
+    feedingType : {#mamosPienas; #misinukas};
+    mlAmount : Float;
+    sessionId : Text;
+    timestamp : Int
+  };
+type FeedingSession__972967393 =
+  {
+    childId : Text;
+    color : Text;
+    feedingType : {#mamosPienas; #misinukas};
+    mlAmount : Float;
+    sessionId : Text;
+    timestamp : Int
+  };
+type HeightEntry__314068772 =
+  {childId : Text; height : Float; heightId : Text; timestamp : Int};
+type HeightEntry__405154374 =
+  {childId : Text; height : Float; heightId : Text; timestamp : Int};
+type HeightEntry__590512130 =
+  {childId : Text; height : Float; heightId : Text; timestamp : Int};
+type Int__616954475 = Int;
+type Int__895066125 = Int__616954475;
+type Internal__161573640<K, V> =
+  {children : [var ?Node__430031793<K, V>]; data : Data__265875254<K, V>};
+type InviteCode__157478225 =
+  {code : Text; created : Time__30997584; used : Bool};
+type InviteLinksSystemState__352438681 =
+  {
+    var inviteCodes : Map__386906547<Text, InviteCode__157478225>;
+    var rsvps : Map__386906547<Text, RSVP__343570294>
+  };
+type JournalNote__105967790 =
+  {
+    childId : Text;
+    color : NoteColor__11484532;
+    createdAt : Int;
+    text : Text;
+    updatedAt : Int
+  };
+type JournalNote__711997557 =
+  {
+    childId : Text;
+    color : NoteColor__265209944;
+    createdAt : Int;
+    text : Text;
+    updatedAt : Int
+  };
+type JournalNote__996824445 =
+  {
+    childId : Text;
+    color : NoteColor__926933403;
+    createdAt : Int;
+    text : Text;
+    updatedAt : Int
+  };
+type Leaf__1045638083<K, V> = {data : Data__265875254<K, V>};
+type List__1004628775<T> =
+  {
+    var blockIndex : Nat__58649523;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__58649523
+  };
+type List__89170296<T> = List__1004628775<T>;
+type Map__13625999<K, V> =
+  {var root : Node__430031793<K, V>; var size : Nat__58649523};
+type Map__386906547<K, V> = Map__670138087<K, V>;
+type Map__670138087<K, V> = Map__13625999<K, V>;
+type MilkPumpingSession__445794996 =
+  {
+    childId : Text;
+    mlAmount : Float;
+    sessionId : Text;
+    side : {#both; #left; #right};
+    timestamp : Int
+  };
+type MilkPumpingSession__480268656 =
+  {
+    childId : Text;
+    mlAmount : Float;
+    sessionId : Text;
+    side : {#both; #left; #right};
+    timestamp : Int
+  };
+type MilkPumpingSession__588922944 =
+  {
+    childId : Text;
+    mlAmount : Float;
+    sessionId : Text;
+    side : {#both; #left; #right};
+    timestamp : Int
+  };
+type Nat__58649523 = Nat__920180692;
+type Nat__920180692 = Nat;
+type NewActor__389242870 = OldActor__964564722;
+type NewActor__960473320 =
+  {
+    accessControlState : AccessControlState__45017055;
+    inviteState : InviteLinksSystemState__352438681;
+    var persistentActiveTimers :
+      Map__386906547<Text, ActiveTimerState__1009963374>;
+    var persistentBreastfeedingSessions :
+      Map__386906547<Text, BreastfeedingSession__986337225>;
+    var persistentChildInviteLinks :
+      Map__386906547<Text, ChildInviteLink__747335125>;
+    var persistentChildProfiles :
+      Map__386906547<Text, ChildProfile__523144385>;
+    var persistentDiaperLogs : Map__386906547<Text, DiaperLog__1047150293>;
+    var persistentFeedingSessions :
+      Map__386906547<Text, FeedingSession__443540178>;
+    var persistentHeightEntries :
+      Map__386906547<Text, HeightEntry__590512130>;
+    var persistentJournalNotes : Map__386906547<Text, JournalNote__996824445>;
+    var persistentMilkPumpingSessions :
+      Map__386906547<Text, MilkPumpingSession__445794996>;
+    var persistentSolidFoodEntries :
+      Map__386906547<Text, NewSolidFoodEntry__685720042>;
+    var persistentTummyTimeSessions :
+      Map__386906547<Text, TummyTimeSession__746969364>;
+    var persistentTummyTimeTimers :
+      Map__386906547<Text, TummyTimeTimerState__852450982>;
+    var persistentUserProfiles :
+      Map__386906547<Principal, UserProfile__465549060>;
+    var persistentWeightEntries :
+      Map__386906547<Text, WeightEntry__358188554>
+  };
+type NewSolidFoodCategory__217514158 =
+  {#berries; #eggs; #fish; #fruits; #grains; #meat; #vegetables};
+type NewSolidFoodEntry__685720042 =
+  {
+    category : NewSolidFoodCategory__217514158;
+    childId : Text;
+    color : Text;
+    entryId : Text;
+    foodName : Text;
+    notes : ?Text;
+    reaction : {#disliked; #liked; #unclear};
+    timestamp : Int
+  };
+type Node__430031793<K, V> =
+  {#internal : Internal__161573640<K, V>; #leaf : Leaf__1045638083<K, V>};
+type NoteColor__11484532 = {#blue; #green; #pink; #purple; #yellow};
+type NoteColor__265209944 = {#blue; #green; #pink; #purple; #yellow};
+type NoteColor__926933403 = {#blue; #green; #pink; #purple; #yellow};
+type OldActor__363696330 =
+  {
+    accessControlState : AccessControlState__45017055;
+    inviteState : InviteLinksSystemState__352438681;
+    var persistentActiveTimers :
+      Map__386906547<Text, ActiveTimerState__1009963374>;
+    var persistentBreastfeedingSessions :
+      Map__386906547<Text, BreastfeedingSession__986337225>;
+    var persistentChildInviteLinks :
+      Map__386906547<Text, ChildInviteLink__747335125>;
+    var persistentChildProfiles :
+      Map__386906547<Text, ChildProfile__523144385>;
+    var persistentDiaperLogs : Map__386906547<Text, DiaperLog__1047150293>;
+    var persistentFeedingSessions :
+      Map__386906547<Text, FeedingSession__443540178>;
+    var persistentHeightEntries :
+      Map__386906547<Text, HeightEntry__590512130>;
+    var persistentJournalNotes : Map__386906547<Text, JournalNote__996824445>;
+    var persistentMilkPumpingSessions :
+      Map__386906547<Text, MilkPumpingSession__445794996>;
+    var persistentSolidFoodEntries :
+      Map__386906547<Text, OldSolidFoodEntry__14164331>;
+    var persistentTummyTimeSessions :
+      Map__386906547<Text, TummyTimeSession__746969364>;
+    var persistentTummyTimeTimers :
+      Map__386906547<Text, TummyTimeTimerState__852450982>;
+    var persistentUserProfiles :
+      Map__386906547<Principal, UserProfile__465549060>;
+    var persistentWeightEntries :
+      Map__386906547<Text, WeightEntry__358188554>
+  };
+type OldActor__964564722 =
+  {
+    accessControlState : AccessControlState__45017055;
+    inviteState : InviteLinksSystemState__352438681;
+    var persistentActiveTimers :
+      Map__386906547<Text, ActiveTimerState__773227379>;
+    var persistentBreastfeedingSessions :
+      Map__386906547<Text, BreastfeedingSession__1048876173>;
+    var persistentChildInviteLinks :
+      Map__386906547<Text, ChildInviteLink__507130320>;
+    var persistentChildProfiles :
+      Map__386906547<Text, ChildProfile__388325982>;
+    var persistentDiaperLogs : Map__386906547<Text, DiaperLog__669381521>;
+    var persistentFeedingSessions :
+      Map__386906547<Text, FeedingSession__972967393>;
+    var persistentHeightEntries :
+      Map__386906547<Text, HeightEntry__314068772>;
+    var persistentJournalNotes : Map__386906547<Text, JournalNote__105967790>;
+    var persistentMilkPumpingSessions :
+      Map__386906547<Text, MilkPumpingSession__588922944>;
+    var persistentSolidFoodEntries :
+      Map__386906547<Text, SolidFoodEntry__1027752584>;
+    var persistentTummyTimeSessions :
+      Map__386906547<Text, TummyTimeSession__353186519>;
+    var persistentTummyTimeTimers :
+      Map__386906547<Text, TummyTimeTimerState__456310788>;
+    var persistentUserProfiles :
+      Map__386906547<Principal, UserProfile__381427606>;
+    var persistentWeightEntries :
+      Map__386906547<Text, WeightEntry__230174782>
+  };
+type OldSolidFoodCategory__13767244 =
+  {#berries; #eggs; #fruits; #grains; #meat; #vegetables};
+type OldSolidFoodEntry__14164331 =
+  {
+    category : OldSolidFoodCategory__13767244;
+    childId : Text;
+    color : Text;
+    entryId : Text;
+    foodName : Text;
+    notes : ?Text;
+    reaction : {#disliked; #liked; #unclear};
+    timestamp : Int
+  };
+type RSVP__343570294 =
+  {
+    attending : Bool;
+    inviteCode : Text;
+    name : Text;
+    timestamp : Time__30997584
+  };
+type SolidFoodEntry__1027752584 =
+  {
+    category : {#berries; #eggs; #fruits; #grains; #meat; #vegetables};
+    childId : Text;
+    color : Text;
+    entryId : Text;
+    foodName : Text;
+    notes : ?Text;
+    reaction : {#disliked; #liked; #unclear};
+    timestamp : Int
+  };
+type SolidFoodEntry__159224713 =
+  {
+    category : {#berries; #eggs; #fish; #fruits; #grains; #meat; #vegetables};
+    childId : Text;
+    color : Text;
+    entryId : Text;
+    foodName : Text;
+    notes : ?Text;
+    reaction : {#disliked; #liked; #unclear};
+    timestamp : Int
+  };
+type Time__1031799312 = Int__895066125;
+type Time__30997584 = Time__1031799312;
+type TummyTimeSession__205819805 =
+  {childId : Text; duration : Int; sessionId : Text; startTime : Int};
+type TummyTimeSession__353186519 =
+  {childId : Text; duration : Int; sessionId : Text; startTime : Int};
+type TummyTimeSession__746969364 =
+  {childId : Text; duration : Int; sessionId : Text; startTime : Int};
+type TummyTimeTimerState__106276096 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type TummyTimeTimerState__456310788 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type TummyTimeTimerState__852450982 =
+  {
+    childId : Text;
+    isPaused : Bool;
+    pausedAt : ?Int;
+    startTime : Int;
+    totalPausedDuration : Int;
+    userId : Principal
+  };
+type UserProfile__381427606 = {name : Text};
+type UserProfile__465549060 = {name : Text};
+type UserProfile__491224006 = {name : Text};
+type UserRole__1073662873 = {#admin; #guest; #user};
+type WeightEntry__1032726335 =
+  {childId : Text; timestamp : Int; weight : Float; weightId : Text};
+type WeightEntry__230174782 =
+  {childId : Text; timestamp : Int; weight : Float; weightId : Text};
+type WeightEntry__358188554 =
+  {childId : Text; timestamp : Int; weight : Float; weightId : Text};
+{
+  "20260730_163400" : (old : OldActor__964564722) -> NewActor__389242870;
+  "20260905_000000" : (old : OldActor__363696330) -> NewActor__960473320
+}
+actor  {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__386906547<Principal, UserRole__1073662873>
+    };
+  stable inviteState :
+    {
+      var inviteCodes : Map__386906547<Text, InviteCode__157478225>;
+      var rsvps : Map__386906547<Text, RSVP__343570294>
+    };
+  stable var persistentActiveTimers :
+    {
+      var root : Node__430031793<Text, ActiveTimerState__580469458>;
+      var size : Nat__58649523
+    };
+  stable var persistentBreastfeedingSessions :
+    {
+      var root : Node__430031793<Text, BreastfeedingSession__1008904786>;
+      var size : Nat__58649523
+    };
+  stable var persistentChildInviteLinks :
+    {
+      var root : Node__430031793<Text, ChildInviteLink__689951076>;
+      var size : Nat__58649523
+    };
+  stable var persistentChildProfiles :
+    {
+      var root : Node__430031793<Text, ChildProfile__1066174519>;
+      var size : Nat__58649523
+    };
+  stable var persistentDiaperLogs :
+    {
+      var root : Node__430031793<Text, DiaperLog__858102138>;
+      var size : Nat__58649523
+    };
+  stable var persistentFeedingSessions :
+    {
+      var root : Node__430031793<Text, FeedingSession__149849716>;
+      var size : Nat__58649523
+    };
+  stable var persistentHeightEntries :
+    {
+      var root : Node__430031793<Text, HeightEntry__405154374>;
+      var size : Nat__58649523
+    };
+  stable var persistentJournalNotes :
+    {
+      var root : Node__430031793<Text, JournalNote__711997557>;
+      var size : Nat__58649523
+    };
+  stable var persistentMilkPumpingSessions :
+    {
+      var root : Node__430031793<Text, MilkPumpingSession__480268656>;
+      var size : Nat__58649523
+    };
+  stable var persistentSolidFoodEntries :
+    {
+      var root : Node__430031793<Text, SolidFoodEntry__159224713>;
+      var size : Nat__58649523
+    };
+  stable var persistentTummyTimeSessions :
+    {
+      var root : Node__430031793<Text, TummyTimeSession__205819805>;
+      var size : Nat__58649523
+    };
+  stable var persistentTummyTimeTimers :
+    {
+      var root : Node__430031793<Text, TummyTimeTimerState__106276096>;
+      var size : Nat__58649523
+    };
+  stable var persistentUserProfiles :
+    {
+      var root : Node__430031793<Principal, UserProfile__491224006>;
+      var size : Nat__58649523
+    };
+  stable var persistentWeightEntries :
+    {
+      var root : Node__430031793<Text, WeightEntry__1032726335>;
+      var size : Nat__58649523
+    }
+};
